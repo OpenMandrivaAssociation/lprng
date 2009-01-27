@@ -11,6 +11,7 @@ Source0:	http://www.lprng.com/DISTRIB/LPRng/%{rname}-%{version}.tgz
 Source1:	lprng.startup
 Patch0:		LPRng-3.8.27-gcc4.diff
 Patch1:		LPRng-typo_fix.diff
+Patch2:		lprng-3.8.32-Werror=format-security.patch
 # "Conflicts: lpr" is mis-understood, not only the package "lpr" is
 # considered as conflicting but also /usr/bin/lpr of another spooler, as
 # CUPS.
@@ -64,6 +65,7 @@ perl -p -i -e "s/^\#REJECT SERVICE=X/REJECT SERVICE=X NOT SERVER\n\#REJECT SERVI
 
 %patch0 -p1 -b .gcc4
 %patch1 -p0
+%patch2 -p1
 
 # Modified startup file with various system checks
 cp %{SOURCE1} lprng.startup
