@@ -3,7 +3,7 @@
 Summary:	LPRng Print Spooler
 Name:		lprng
 Version:	3.8.32
-Release:	%mkrel 2
+Release:	%mkrel 3
 License:	GPL and Artistic
 Group:		System/Configuration/Printing
 URL:		http://www.lprng.com
@@ -133,7 +133,7 @@ install -m0755 lprng.startup %{buildroot}%{_initrddir}/lpd
   mv cancel.1 cancel-lpd.1
   mv lpstat.1 lpstat-lpd.1
 )
-( cd %{buildroot}{_mandir}/man8
+( cd %{buildroot}%{_mandir}/man8
   mv lpc.8 lpc-lpd.8
 )
 
@@ -147,7 +147,7 @@ rm -f %{buildroot}%{_sysconfdir}/rc.d/init.d/lpd.sample
 %post
 /sbin/chkconfig --add lpd
 %{_sbindir}/update-alternatives --install %{_sbindir}/lpc lpc %{_sbindir}/lpc-lpd 5 --slave \
-    %{_mandir}/man8/lpc.8%{_extension} lpc.1.bz2 %{_mandir}/man8/lpc-lpd.8%{_extension}
+    %{_mandir}/man8/lpc.8%{_extension} lpc.8%{_extension} %{_mandir}/man8/lpc-lpd.8%{_extension}
 
 %post client
 if [ -w /etc/printcap ] ; then
@@ -166,7 +166,7 @@ fi
 
 # Set up update-alternatives entries
 %{_sbindir}/update-alternatives --install %{_bindir}/lpr lpr %{_bindir}/lpr-lpd 5 \
-    --slave %{_mandir}/man1/lpr.1.bz2 lpr.1%{_extension} %{_mandir}/man1/lpr-lpd.1%{_extension}
+    --slave %{_mandir}/man1/lpr.1%{_extension} lpr.1%{_extension} %{_mandir}/man1/lpr-lpd.1%{_extension}
 
 %{_sbindir}/update-alternatives --install %{_bindir}/lpq lpq %{_bindir}/lpq-lpd 5 \
     --slave %{_mandir}/man1/lpq.1%{_extension} lpq.1%{_extension} %{_mandir}/man1/lpq-lpd.1%{_extension}
