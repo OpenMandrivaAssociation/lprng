@@ -3,7 +3,7 @@
 Summary:	LPRng Print Spooler
 Name:		lprng
 Version:	3.8.32
-Release:	%mkrel 3
+Release:	%mkrel 4
 License:	GPL and Artistic
 Group:		System/Configuration/Printing
 URL:		http://www.lprng.com
@@ -214,7 +214,6 @@ rm -rf %{buildroot}
 %doc CHANGES CONTRIBUTORS COPYRIGHT INSTALL LICENSE 
 %doc README* VERSION Y2KCompliance
 %doc DOCS/*.htm* DOCS/*.jpg DOCS/*.png DOCS/*.txt DOCS/*.pdf
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/lpd
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/printcap*
 %attr(0755,root,root) %{_initrddir}/lpd
 %{_sbindir}/checkpc
@@ -232,7 +231,8 @@ rm -rf %{buildroot}
 %doc CHANGES CONTRIBUTORS COPYRIGHT INSTALL LICENSE 
 %doc README* VERSION Y2KCompliance
 %doc DOCS/*.htm* DOCS/*.jpg DOCS/*.png DOCS/*.txt DOCS/*.pdf
-%attr(0755,root,root) %config(noreplace) %{_sysconfdir}/lpd
+%attr(0755,root,root) %dir %{_sysconfdir}/lpd
+%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/lpd/*
 %attr(0755,lp,lp) %{_bindir}/lpq-lpd
 %attr(0755,lp,lp) %{_bindir}/lprm-lpd
 %attr(0755,lp,lp) %{_bindir}/lpr-lpd
