@@ -3,7 +3,7 @@
 Summary:	LPRng Print Spooler
 Name:		lprng
 Version:	3.8.32
-Release:	%mkrel 4
+Release:	%mkrel 5
 License:	GPL and Artistic
 Group:		System/Configuration/Printing
 URL:		http://www.lprng.com
