@@ -1,0 +1,28 @@
+diff -Naur LPRng-3.8.27/src/common/krb5_auth.c LPRng-3.8.27.oden/src/common/krb5_auth.c
+--- LPRng-3.8.27/src/common/krb5_auth.c	2004-05-03 22:24:02.000000000 +0200
++++ LPRng-3.8.27.oden/src/common/krb5_auth.c	2005-11-30 05:16:08.000000000 +0100
+@@ -922,10 +922,11 @@
+ 		nstored = 0;
+ 	}
+ 	
+-	if ((cc = Read_fd_len_timeout(transfer_timeout, fd, len_buf, 4)) != 4) {
++        if ((cc = Read_fd_len_timeout(transfer_timeout, fd, (char*) len_buf, 4)) != 4) {
+ 		/* XXX can't read enough, pipe must have closed */
+ 		return(0);
+ 	}
++
+ 	rd_len =
+ 		((len_buf[0]<<24) | (len_buf[1]<<16) | (len_buf[2]<<8) | len_buf[3]);
+ 	net_len = krb5_encrypt_size(rd_len,eblock->crypto_entry);
+diff -Naur LPRng-3.8.27/src/common/lpq.c LPRng-3.8.27.oden/src/common/lpq.c
+--- LPRng-3.8.27/src/common/lpq.c	2004-05-03 22:24:03.000000000 +0200
++++ LPRng-3.8.27.oden/src/common/lpq.c	2005-11-30 05:17:09.000000000 +0100
+@@ -449,7 +449,7 @@
+ 	if( (pid = dofork(0)) == 0 ){
+ 		setuid( OriginalRUID );
+ 		close_on_exec(3);
+-		execl(CLEAR,0);
++                execl(CLEAR,0,NULL);
+ 		exit(1);
+ 	} else if( pid < 0 ){
+ 		LOGERR_DIE(LOG_ERR) _("fork() failed") );

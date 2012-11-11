@@ -1,0 +1,11 @@
+--- LPRng-3.8.32/src/common/lpf.c
++++ LPRng-3.8.32/src/common/lpf.c
+@@ -485,7 +485,7 @@ void getargs( int argc, char *argv[], char *envp[] )
+ 			case 'x': xwidth = atoi( optargv ); break; 
+ 			case 'y': ylength = atoi( optargv ); break;
+ 			case 'V':
+-				fprintf( stdout, Version );
++				fprintf( stdout, "%s", Version );
+ 				Printlist( Copyright, 2 );
+ 				exit(1);
+ 				break;
