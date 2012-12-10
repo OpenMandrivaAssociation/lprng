@@ -1,0 +1,210 @@
+#!/bin/bash
+#
+# lpd           This shell script takes care of starting and stopping \
+#               lpd (printer daemon).
+#
+# chkconfig: 2345 60 60
+# description: lpd is the print daemon required for lpr to work properly. \
+#       It is basically a server that arbitrates print jobs to printer(s).
+# processname: /usr/sbin/lpd
+# config: /etc/printcap
+#
+### BEGIN INIT INFO
+# Provides: lpd
+# Required-Start: $network
+# Should-Start: $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop lpd (printer daemon)
+# Description: lpd is the print daemon required for lpr to work properly.
+#       It is basically a server that arbitrates print jobs to printer(s).
+# 
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+[ -x /usr/sbin/lpd ] || exit 0
+
+prog=lpd
+
+RETVAL=0
+
+# Override locales which break the output of the network tools,
+# To satisfy Perl all variables have to be set and not only
+# LC_MESSAGES
+export LANG=C
+export LANGUAGE=C
+export LC_CTYPE=C
+export LC_NUMERIC=C
+export LC_TIME=C
+export LC_COLLATE=C
+export LC_MONETARY=C
+export LC_MESSAGES=C
+export LC_PAPER=C
+export LC_NAME=C
+export LC_ADDRESS=C
+export LC_TELEPHONE=C
+export LC_MEASUREMENT=C
+export LC_IDENTIFICATION=C
+export LC_ALL=
+
+start () {
+    # Do some checks, I hope they make LPRng really idiot-proof now ...
+
+    # LPRng needs the loopback device to run correctly, bail out if it is absent
+    if !(/sbin/ifconfig | /bin/egrep -q "^lo +[^ ]+.*Loopback" > /dev/null 2>&1); then
+	echo -n "Loopback network device is needed by LPRng. Aborting"
+	echo_failure
+	echo
+	return 1
+    fi
+
+    # Check if CUPS is running and if it automatically creates
+    # an /etc/printcap file, restart CUPS so that it reconfigures itself
+    # to not create an /etc/printcap file
+    if [ -x /usr/sbin/cupsd -a -r /etc/cups/cupsd.conf ]; then
+        if ((!((/bin/egrep "^[[:space:]]*Printcap$" /etc/cups/cupsd.conf > /dev/null 2>&1) ||
+              (/bin/egrep "^[[:space:]]*Printcap[[:space:]]+" /etc/cups/cupsd.conf > /dev/null 2>&1))) ||
+            (/bin/egrep "^[[:space:]]*Printcap[[:space:]]+/etc/printcap[[:space:]]*$" /etc/cups/cupsd.conf > /dev/null 2>&1)); then
+             echo "Making CUPS not overwriting /etc/printcap ..."
+             /sbin/service cups condrestart
+        fi
+        if (/sbin/chkconfig --list cups-lpd | /bin/egrep "on$" > /dev/null 2>&1); then
+            echo "Turning off CUPS-LPD mini daemon ..."
+            /sbin/chkconfig --del cups-lpd
+            if [ -x /usr/sbin/xinetd ]; then
+                /sbin/service xinetd condrestart
+            fi
+        fi
+    fi
+    # Is this a printconf system?
+    if [[ -x /usr/sbin/printconf-backend ]]; then
+        # run printconf-backend to rebuild printcap and spools
+        if ! /usr/sbin/printconf-backend ; then
+            # If the backend fails, we dont start no printers defined
+            echo -n "Starting $prog: No printers defined"
+            echo_success
+            echo
+            return 0
+        fi
+    fi
+    if ! [ -e /etc/printcap ] ; then
+        echo -n $"$prog aborted: No config file /etc/printcap found!"
+        echo_failure
+        echo
+        return 1
+    fi
+    # Check whether a parallel printer is configured and if so, but
+    # if the parallel printer kernel module not being loaded, load the
+    # module.
+    if (/bin/egrep "^[^#]*/dev/lp" /etc/printcap > /dev/null 2>&1); then
+        if (!(/sbin/lsmod | /bin/egrep "^lp +" > /dev/null 2>&1) || \
+            !(/sbin/lsmod | /bin/egrep "^parport_pc +" > /dev/null 2>&1)); then
+            echo "Loading parallel port printer kernel modules ..."
+            modprobe parport_pc > /dev/null 2>&1;
+            RET=$?
+            if [ $RET -eq 0 ]; then
+                modprobe lp > /dev/null 2>&1;
+                RET=$?
+            fi
+            if [ $RET -ne 0 ]; then
+                echo
+                echo "WARNING: Parallel printer kernel modules could not be loaded, your parallel"
+                echo "         printer may not work."
+                echo
+            fi
+        fi
+    fi
+    # Check whether a USB printer is configured and if so, but if the
+    # USB printer kernel module not being loaded, load the module.
+    if (/bin/egrep "^[^#]*/dev/usb" /etc/printcap > /dev/null 2>&1); then
+        if !(/sbin/lsmod | /bin/egrep "^printer +" > /dev/null 2>&1); then
+            echo "Loading USB printer kernel module ..."
+            modprobe printer > /dev/null 2>&1;
+            if [ $? -ne 0 ]; then
+                echo
+                echo "WARNING: USB printer kernel module could not be loaded, your USB printer may"
+                echo "         not work."
+                echo
+            fi
+        fi
+    fi
+    # Check whether an HP multifunction device is configured with HPOJ
+    # and if so, but if the HPOJ daemons not being running, start the 
+    # daemons.
+    if (/bin/egrep "^[^#]*/dev/ptal-" /etc/printcap > /dev/null 2>&1); then
+        if !(/bin/ps auxwww | /bin/grep -v "grep" | /bin/grep "ptal-" > /dev/null 2>&1); then
+            echo "Starting HPOJ daemons ..."
+            chkconfig --add hpoj
+            /sbin/service hpoj start
+        fi
+    fi
+    # Check whether an OKI winprinter is configured with and if so,
+    # but if the oki4daemon not being running, start the oki4daemon.
+    if (/bin/egrep "^[^#]*/dev/oki4drv" /etc/printcap > /dev/null 2>&1); then
+        if !(/bin/ps auxwww | /bin/grep -v "grep" | /bin/grep "oki4daemon" > /dev/null 2>&1); then
+            echo "Starting oki4daemon ..."
+            chkconfig --add oki4daemon
+            /sbin/service oki4daemon start
+        fi
+    fi
+    echo -n $"Starting $prog: "
+    # run checkpc to fix whatever lpd would complain about
+    /usr/sbin/checkpc -f
+    # start daemon
+    daemon /usr/sbin/lpd
+    RETVAL=$?
+    echo
+    [ $RETVAL = 0 ] && touch /var/lock/subsys/lpd
+    return $RETVAL
+}
+
+stop () {
+    # stop daemon
+    echo -n $"Stopping $prog: "
+    killproc /usr/sbin/lpd
+    RETVAL=$?
+    echo
+    [ $RETVAL = 0 ] && rm -f /var/lock/subsys/lpd
+    return $RETVAL
+}
+
+restart () {
+    $0 stop
+    $0 start
+    RETVAL=$?
+    return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    status)
+	status /usr/sbin/lpd
+	RETVAL=$?
+	;;
+    restart)
+	restart
+	;;
+    condrestart)
+	# only restart if it is already running
+	[ -f /var/lock/subsys/lpd ] && restart || :
+	;;
+    reload)
+	echo -n $"Reloading $prog: "
+	killproc /usr/sbin/lpd -HUP
+	RETVAL=$?
+	echo
+	;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|condrestart|reload|status}"
+        RETVAL=1
+esac
+
+exit $RETVAL

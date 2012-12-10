@@ -239,3 +239,73 @@ rm -rf %{buildroot}
 %attr(0755,lp,lp) %{_bindir}/lpstat-lpd
 %{_bindir}/lp-lpd
 %{_bindir}/cancel-lpd
+
+
+%changelog
+* Fri Dec 10 2010 Oden Eriksson <oeriksson@mandriva.com> 3.8.32-6mdv2011.0
++ Revision: 620261
+- the mass rebuild of 2010.0 packages
+
+* Mon Sep 14 2009 Thierry Vignaud <tv@mandriva.org> 3.8.32-5mdv2010.0
++ Revision: 439611
+- rebuild
+
+* Wed Mar 25 2009 Gustavo De Nardin <gustavodn@mandriva.com> 3.8.32-4mdv2009.1
++ Revision: 360991
+- fixed config dir permissions and package ownerships (bug 49051)
+
+* Tue Mar 24 2009 Gustavo De Nardin <gustavodn@mandriva.com> 3.8.32-3mdv2009.1
++ Revision: 360795
+- fixed alternatives names (bug 49071)
+
+* Tue Jan 27 2009 Gustavo De Nardin <gustavodn@mandriva.com> 3.8.32-2mdv2009.1
++ Revision: 334602
+- fixed GCC format string complaints
+- new release with initscript fixes
+- cleanup unneeded code in the initscript, which tried to setup the network
+  before bringing up lprng (...); this is ensured by LSB $network facility
+- cleanup dead, commented out, code in the initscript, which tried to setup
+  the network before bringing up lprng (...) this is ensured by LSB $network
+  facility
+- made initscript use #!/bin/bash, for it uses bashisms
+- fixed init script to have LSB headers, based on patch for bug #47300 by Sylvie Terjan
+
+* Sat Jul 26 2008 Oden Eriksson <oeriksson@mandriva.com> 3.8.32-1mdv2009.0
++ Revision: 250300
+- 3.8.32
+- lowerecase'd due to case haters
+- fix build, and other spec file stuff...
+- for the case haters
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - rebuild
+    - rebuild
+    - require coreutils instead of fileutils & textutils
+
+
+* Tue Jun 20 2006 Lenny Cartier <lenny@mandriva.com> 3.8.28-4mdv2007.0
+- rebuild
+
+* Tue May 16 2006 Olivier Thauvin <nanardon@mandriva.org> 3.8.28-3mdk
+- add conflicts to ensure upgrade works
+
+* Fri Apr 21 2006 Olivier Thauvin <nanardon@mandriva.org> 3.8.28-2mdk
+- %%mkrel
+- some clean up
+- split package between the server and the client
+
+* Wed Nov 30 2005 Oden Eriksson <oeriksson@mandriva.com> 3.8.28-1mdk
+- 3.8.28
+- added P0 to make it compile with gcc4 (debian)
+
+* Mon Aug 23 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 3.8.27-1mdk
+- 3.8.27
+- remove printcap, conflict with setup
+
+* Thu Mar 18 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 3.8.26-2mdk
+- Fix permission on %%_sysconfdir/lpd
+- clean list files
+
+* Fri Mar 05 2004 Till Kamppeter <till@mandrakesoft.com> 3.8.26-1mdk
+- Version 3.8.26 (after a long break LPRng is under development again).
+
