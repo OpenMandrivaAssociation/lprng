@@ -6,7 +6,7 @@ Version:	3.8.32
 Release:	7
 License:	GPL and Artistic
 Group:		System/Configuration/Printing
-URL:		http://www.lprng.com
+URL:		https://www.lprng.com
 Source0:	http://www.lprng.com/DISTRIB/LPRng/%{rname}-%{version}.tgz
 Source1:	lprng.startup
 Patch0:		LPRng-3.8.27-gcc4.diff
