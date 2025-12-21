@@ -22,6 +22,11 @@ Obsoletes:	%{rname}
 Provides:	lpr lpddaemon
 Requires(post): update-alternatives
 Requires(preun): update-alternatives
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	gdbm-devel
 BuildRequires:	gettext-devel
 BuildRoot:	%{_tmppath}/%{rname}-%{version}-%{release}-buildroot
